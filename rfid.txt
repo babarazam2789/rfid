@@ -1,0 +1,147 @@
+Perform Raspberry Pi Interfacing with EM18 RFID Reader
+
+1. Open your “Raspberry pi Configuration” to enable serial Port & Disable Serial Console.
+
+2. Select “Interfaces”:
+
+Now Enable Serial Port and Disable Serial Console and click on OK
+
+Click on Yes and Reboot the Raspberry pi.
+
+Step 3] Verify if the Changes have been made. Open Terminal and Enter Command:
+“ls -l /dev”
+
+Here the “ttys0” is our port
+Let’s send a message on this port 
+
+Step 4] Open a new terminal and type command 
+echo “Hello There”  > /dev/ttys0
+
+Step 5] Disable the Bluetooth
+
+Step 6] then disable it from Invoking from Restart for that in the terminal enter command:
+sudo nano /boot/config.txt
+
+Enter : “dtoverlay=disable-bt” at the bottom of the txt file and then save it 
+
+Step 7] Then disable Bluetooth related services using command:
+Sudo systemctl disable hciuart
+
+After this Reboot raspberry pi again.
+The bluetooth logo will not be visible 
+
+Step 8] Now send the message using the other port
+
+Code : 
+
+Read_RFID:
+import time
+import serial
+   
+data = serial.Serial(
+                    port='/dev/ttyAMA0',
+                    baudrate = 9600,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS
+                    )
+                    #timeout=1 # must use when using data.readline()
+                    #)
+print (" ")
+          
+try:     
+   while 1:
+         #x=data.readline()#print the whole data at once
+         #x=data.read()#print single data at once
+         
+         print ("Place the card")
+         x=data.read(12) #print upto 10 data at once and the 
+                         #remaining on the second line
+         output = str(x, 'UTF-8')
+         print ("RFID Card No : ",output)
+         print (" ")
+
+except KeyboardInterrupt:
+       data.close()
+
+code :
+
+Read_detect_RFID:
+
+import time
+import serial
+          
+      
+data = serial.Serial(
+                    port='/dev/ttyAMA0',
+                    baudrate = 9600,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS
+                    )
+
+
+
+                   
+ #timeout=1 # must use when using data.readline()
+                    #)
+print (" ")
+          
+try:     
+   while 1:
+         #x=data.readline()#print the whole data at once
+         #x=data.read()#print single data at once
+         
+         print ("Place the card")
+         x=data.read(12)
+         x = str(x, 'UTF-8')
+         
+         if x=="0900963100AE":
+             print ("Card No - ",x)
+             print ("Welcome User 1")
+             print (" ")
+             
+         elif x=="88001964699C":
+             print ("Card No - ",x)
+             print ("Welcome User 2")
+             print (" ")
+             
+         elif x=="880013E5235D":
+             print ("Card No - ",x)
+             print ("Welcome User 3")
+             print (" ")
+             
+         elif x=="880013E5225C":
+             print ("Card No - ",x)
+             print ("Welcome User 4")
+             print (" ")
+             
+         elif x=="880019646A9F":
+             print ("Card No - ",x)
+             print ("WelcomeUser 5")
+             print (" ")
+         else:
+             print ("Wrong Card.....")
+             print (" ")        
+         
+         #print x
+
+except KeyboardInterrupt:
+       data.close()
+
+
+code :
+
+Serial_Read:
+
+import serial
+from time import sleep
+
+ser = serial.Serial ("/dev/ttyAMA0", 9600)    #Open port with baud rate
+while True:
+    received_data = ser.read()              #read serial port
+    sleep(0.03)
+    data_left = ser.inWaiting()             #check for remaining byte
+    received_data += ser.read(data_left)
+    print (received_data)                   #print received data
+    ser.write(received_data)                #transmit data serially
